@@ -1,0 +1,42 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Configuring drone net
+      docker_network:
+        name: drone-net
+        ipam_options:
+          iprange: "192.168.2.0/24"
+          subnet: "192.168.2.0/24"
+          gateway: 192.168.2.1
+    - name: Create drone server
+      docker_container:
+        name: drone
+        hostname: f4e18179.ngrok.io
+        image: 'drone/drone:1'
+        detach: yes
+        interactive: yes
+        tty: yes
+        restart: yes
+        restart_policy: always
+        volumes: 
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /var/lib/drone:/data
+        published_ports: 
+          - 80:80
+          - 443:443
+        exposed_ports: 
+          - 80
+          - 443
+        networks:
+          - name: drone-net
+            ipv4_address: 192.168.2.2
+            aliases:
+              - drone-srv
+        env:
+          DRONE_GITHUB_SERVER: "https://github.com"
+          DRONE_GITHUB_CLIENT_ID: "bdde6cdd14e7831fcd7e"
+          DRONE_GITHUB_CLIENT_SECRET: "04ec06578fd91e1825e294b785fc7290ff221a5a"
+          DRONE_RUNNER_CAPACITY: "2"
+          DRONE_SERVER_HOST: "f4e18179.ngrok.io"
+          DRONE_SERVER_PROTO: "https"
+          DRONE_TLS_AUTOCERT: "true"
