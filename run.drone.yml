@@ -1,0 +1,12 @@
+kind: pipeline
+name: default
+
+steps:
+- name: frontend
+  image: node
+  tags:
+    - demo6
+    - master
+  commands:
+  - npm install
+  - npm test
